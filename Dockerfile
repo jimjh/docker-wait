@@ -1,3 +1,3 @@
-FROM ubuntu:14.04
+FROM ubuntu:trusty
 ADD wait /wait
 CMD ["sh", "/wait"]
