@@ -1,16 +1,21 @@
-#!/bin/sh
-
-set -e
+#!/bin/bash
+set -o errexit
+set -o pipefail
+set -o nounset
 
 host=$(env | grep _TCP_ADDR | cut -d = -f 2)
 port=$(env | grep _TCP_PORT | cut -d = -f 2)
+count=${COUNT:-10}  # number of seconds to wait
 
-echo -n "waiting for TCP connection to $host:$port..."
+echo -n "waiting for TCP connection to ${host}:${port}..."
 
-while ! nc -w 1 $host $port 2>/dev/null
-do
+for i in {1..${count}}; do
+  if nc -w 1 ${host} ${port} 1>/dev/null 2>&1; then
+    break
+  fi
   echo -n .
   sleep 1
 done
 
-echo 'ok'
+echo ''
+echo "port ${port} is accepting TCP connections"
