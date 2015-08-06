@@ -1,16 +1,14 @@
 #!/bin/bash
-set -o errexit
-set -o pipefail
-set -o nounset
-
 host=$(env | grep _TCP_ADDR | cut -d = -f 2)
 port=$(env | grep _TCP_PORT | cut -d = -f 2)
-count=${COUNT:-10}  # number of seconds to wait
+count=${COUNT:-20}  # number of seconds to wait
+success=false
 
-echo -n "waiting for TCP connection to ${host}:${port}..."
+echo -n "waiting for TCP connection to ${host}:${port} ..."
 
-for i in {1..${count}}; do
-  if nc -w 1 ${host} ${port} 1>/dev/null 2>&1; then
+for i in $(seq 1 ${count}); do
+  if nc -z -w 1 ${host} ${port} 1>/dev/null 2>&1; then
+    success=true
     break
   fi
   echo -n .
@@ -18,4 +16,10 @@ for i in {1..${count}}; do
 done
 
 echo ''
-echo "port ${port} is accepting TCP connections"
+if $success; then
+  echo "port ${port} is accepting TCP connections"
+  exit 0
+fi
+
+echo "unable to reach ${host}:${port} over TCP"
+exit 1
