@@ -1,25 +1,32 @@
 #!/bin/bash
-host=$(env | grep _TCP_ADDR | cut -d = -f 2)
-port=$(env | grep _TCP_PORT | cut -d = -f 2)
+hosts=($(env | grep _TCP_ADDR | cut -d = -f 2))
+ports=($(env | grep _TCP_PORT | cut -d = -f 2))
 count=${COUNT:-20}  # number of seconds to wait
-success=false
 
-echo -n "waiting for TCP connection to ${host}:${port} ..."
+n=0
+for host in "${hosts[@]}"; do
 
-for i in $(seq 1 ${count}); do
-  if nc -z -w 1 ${host} ${port} 1>/dev/null 2>&1; then
-    success=true
-    break
+  port=${ports[$n]}
+  success=false
+
+  echo -n "waiting for TCP connection to ${host}:${port} ..."
+  for i in $(seq 1 ${count}); do
+    if nc -z -w 1 ${host} ${port} 1>/dev/null 2>&1; then
+      success=true
+      break
+    fi
+    echo -n .
+    sleep 1
+  done
+
+  echo ''
+  if $success; then
+    echo "port ${port} is accepting TCP connections"
+  else
+    echo "unable to reach ${host}:${port} over TCP"
+    exit 1
   fi
-  echo -n .
-  sleep 1
+
+  n=$(($n+1))
+
 done
-
-echo ''
-if $success; then
-  echo "port ${port} is accepting TCP connections"
-  exit 0
-fi
-
-echo "unable to reach ${host}:${port} over TCP"
-exit 1
