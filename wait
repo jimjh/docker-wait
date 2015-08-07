@@ -1,7 +1,7 @@
 #!/bin/bash
 hosts=($(env | grep _TCP_ADDR | cut -d = -f 2))
 ports=($(env | grep _TCP_PORT | cut -d = -f 2))
-count=${COUNT:-20}  # number of seconds to wait
+count=${COUNT:-30}  # number of seconds to wait
 
 n=0
 for host in "${hosts[@]}"; do
