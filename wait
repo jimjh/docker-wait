@@ -1,18 +1,18 @@
-#!/bin/bash
-hosts=($(env | grep _TCP_ADDR | cut -d = -f 2))
-ports=($(env | grep _TCP_PORT | cut -d = -f 2))
+#!/bin/ash
+hosts=$(env | grep _TCP_ADDR | cut -d = -f 2)
+ports=$(env | grep _TCP_PORT | cut -d = -f 2)
 count=${COUNT:-30}  # number of seconds to wait
 
-n=0
-for host in "${hosts[@]}"; do
+for host in $hosts; do
 
-  port=${ports[$n]}
-  success=false
+  set -- $ports
+  port=$1
+  success='false'
 
   echo -n "waiting for TCP connection to ${host}:${port} ..."
   for i in $(seq 1 ${count}); do
-    if nc -z -w 1 ${host} ${port} 1>/dev/null 2>&1; then
-      success=true
+    if echo -n "\cD" | telnet ${host} ${port} 2>/dev/null; then
+      success='true'
       break
     fi
     echo -n .
@@ -20,13 +20,13 @@ for host in "${hosts[@]}"; do
   done
 
   echo ''
-  if $success; then
+  if [ "${success}" = 'true' ]; then
     echo "port ${port} is accepting TCP connections"
   else
     echo "unable to reach ${host}:${port} over TCP"
     exit 1
   fi
 
-  n=$(($n+1))
+  shift  # next port
 
 done

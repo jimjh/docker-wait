@@ -1,3 +1,3 @@
-FROM ubuntu:trusty
+FROM busybox
 ADD wait /wait
-CMD ["/bin/bash", "/wait"]
+CMD ["/bin/sh", "/wait"]
