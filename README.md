@@ -7,3 +7,8 @@ Use it like this:
     waiting for TCP connection to 172.17.0.105:5432......ok
 
 Just link a single container to it - it doesn't matter what the link alias is.
+
+### jimjh Changes
+
+- allow multiple ports
+- send EOF after establishing connection w. telnet
